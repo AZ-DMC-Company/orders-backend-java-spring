@@ -8,6 +8,7 @@ import java.util.*;
 @SpringBootApplication
 @RestController
 @RequestMapping("/orders")
+@CrossOrigin(origins = "https://ca-ricvera-dev-frontend.greenbush-9511773a.westus2.azurecontainerapps.io")
 public class OrdersApplication {
 
     public static void main(String[] args) {
