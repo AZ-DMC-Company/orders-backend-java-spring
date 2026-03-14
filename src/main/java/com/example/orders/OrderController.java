@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Arrays;
 
 @RestController
+@CrossOrigin(origins = "https://orders-frontend-dev-01.gentleglacier-13b71ce3.eastus.azurecontainerapps.io")
 public class OrderController {
 
     @GetMapping("/orders")
