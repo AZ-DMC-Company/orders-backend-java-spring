@@ -1,5 +1,3 @@
-
-<!-- orders-backend-java-spring/pom.xml -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
@@ -14,6 +12,7 @@
     <name>orders-backend</name>
     <description>Proyecto académico: backend Java Spring para órdenes</description>
 
+    <!-- Spring Boot Parent -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -31,12 +30,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- Optional: DevTools -->
+
+        <!-- DevTools opcional -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -46,6 +47,7 @@
     </dependencies>
 
     <build>
+        <finalName>orders-backend</finalName> <!-- JAR fijo para Dockerfile -->
         <plugins>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
@@ -54,4 +56,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
