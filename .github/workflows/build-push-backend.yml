@@ -25,7 +25,3 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.BACKEND_IMAGE_NAME }}:dev
-        env:
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}          
-          MYSQL_URL: ${{ secrets.MYSQL_URL }}
