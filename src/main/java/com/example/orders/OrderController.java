@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*") // Permite que cualquier frontend llame al backend
 @RequestMapping("/orders")
 public class OrderController {
 
