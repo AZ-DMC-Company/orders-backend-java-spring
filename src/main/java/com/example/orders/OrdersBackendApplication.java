@@ -14,10 +14,12 @@ public class OrdersBackendApplication {
     @Bean
     CommandLineRunner initDatabase(OrderRepository repository) {
         return args -> {
-            repository.save(new Order(null, "Laptop", 1200));
-            repository.save(new Order(null, "Monitor", 300));
-            repository.save(new Order(null, "Mouse", 25));
-            repository.save(new Order(null, "Keyboard", 45));
+            if (repository.count() == 0) { // solo si la tabla está vacía
+                repository.save(new Order(null, "Laptop", 1200));
+                repository.save(new Order(null, "Monitor", 300));
+                repository.save(new Order(null, "Mouse", 25));
+                repository.save(new Order(null, "Keyboard", 45));
+            }
         };
     }
 }
