@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "https://orders-frontend-dev-01.gentleglacier-13b71ce3.eastus.azurecontainerapps.io")
 @RequestMapping("/orders")
 public class OrderController {
 
