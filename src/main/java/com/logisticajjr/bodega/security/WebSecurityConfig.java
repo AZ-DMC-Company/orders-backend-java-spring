@@ -17,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -41,6 +44,25 @@ public class WebSecurityConfig {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    // CORS para Azure y local
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        return new CorsFilter(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowCredentials(true);
+            config.addAllowedHeader("*");
+            config.addAllowedMethod("*");
+
+            String origin = request.getHeader("Origin");
+            if (origin != null && (origin.endsWith(".azurecontainerapps.io") || origin.contains("localhost"))) {
+                config.addAllowedOrigin(origin);
+            }
+
+            return config;
+        });
     }
 
     @Bean
