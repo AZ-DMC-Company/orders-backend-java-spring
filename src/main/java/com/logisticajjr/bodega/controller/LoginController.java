@@ -15,9 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,11 +33,6 @@ public class LoginController {
         final int userId = repo.findOneByUsername(jwtRequest.getUsername()).getIdUser();
         return ResponseEntity.ok(new JwtResponse(accessToken, userId));
     }
-
-    @RequestMapping(value = "/login", method = RequestMethod.OPTIONS)
-    public ResponseEntity<Void> loginOptions() {
-        return ResponseEntity.ok().build();
-    }    
 
     private void authenticate(String username, String password) throws Exception{
         try {
