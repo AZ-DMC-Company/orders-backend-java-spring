@@ -73,6 +73,7 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // usa config dinámica
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // permite preflight
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/mail/**").authenticated()
                         .anyRequest().authenticated()
