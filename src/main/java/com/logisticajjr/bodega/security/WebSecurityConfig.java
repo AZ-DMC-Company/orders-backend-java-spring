@@ -1,10 +1,8 @@
 package com.logisticajjr.bodega.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -19,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
@@ -50,40 +47,44 @@ public class WebSecurityConfig {
         auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
-    // 🔹 CorsFilter global para OPTIONS antes de Security/JWT
+    // 🔹 CorsFilter dinámico para cualquier frontend de Azure
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("http://localhost:4200");
-        config.addAllowedOriginPattern("https://*.azurecontainerapps.io");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
 
-        CorsFilter corsFilter = new CorsFilter(source);
+        CorsFilter corsFilter = new CorsFilter(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowCredentials(true);
+            config.setAllowedHeaders(Arrays.asList("*"));
+            config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+
+            String origin = request.getHeader("Origin");
+            if (origin != null && (origin.contains(".azurecontainerapps.io") || origin.contains("localhost"))) {
+                // ✅ permite cualquier subdominio de Azure Container Apps
+                config.addAllowedOrigin(origin);
+            }
+
+            return config;
+        });
+
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(corsFilter);
-        bean.setOrder(0); // ⚠️ Muy importante: antes que JWT
+        bean.setOrder(0); // ⚠️ Muy importante: antes de SecurityFilterChain
         return bean;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors() // usa CorsFilter global
-                .and()
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/mail/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+            .cors(cors -> {}) // usa CorsFilter dinámico
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login").permitAll()
+                .requestMatchers("/mail/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .formLogin(AbstractHttpConfigurer::disable)
+            .exceptionHandling(e -> e.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
-        // 🔹 JWT filter
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
