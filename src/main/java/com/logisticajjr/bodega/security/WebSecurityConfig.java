@@ -1,6 +1,7 @@
 package com.logisticajjr.bodega.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,24 +30,35 @@ public class WebSecurityConfig {
     private final UserDetailsService jwtUserDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
 
+    /**
+     * Bean de AuthenticationManager que se inyectará en LoginController.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * PasswordEncoder usando BCrypt.
+     */
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configura AuthenticationManager con tu UserDetailsService
-    @Bean
-    public AuthenticationManagerBuilder authManagerBuilder(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
-        return auth;
+    /**
+     * Configuración global de AuthenticationManagerBuilder.
+     * Ya no se expone como @Bean, solo se usa para configurar el AuthenticationManager.
+     */
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(jwtUserDetailsService)
+            .passwordEncoder(passwordEncoder());
     }
 
-    // 🔹 CORS global: permite cualquier origen, header y método
+    /**
+     * Configuración global de CORS: permite cualquier origen, header y método.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -59,10 +71,13 @@ public class WebSecurityConfig {
         return source;
     }
 
+    /**
+     * Configuración del SecurityFilterChain.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // usa CORS global
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
